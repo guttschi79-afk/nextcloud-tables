@@ -144,7 +144,7 @@
     <string name="validation_number_range">The value must be between %1$s and %2$s</string>
     <string name="validation_number_min">The value must be at least %1$s</string>
     <string name="validation_number_max">The value must be at most %1$s</string>
-    <string name="validation_mandatory">This is a mandatory field</string>
+    <string name="validation_mandatory">Dieses Feld ist erforderlich</string>
     <string name="validation_time_missing">Time must be provided for a DateTime field.</string>
 
     <string name="missing_permission_read">Missing read permission</string>

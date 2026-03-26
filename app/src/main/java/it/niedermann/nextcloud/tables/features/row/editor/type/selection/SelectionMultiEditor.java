@@ -98,4 +98,8 @@ public class SelectionMultiEditor extends DataEditView<EditSelectionMultiBinding
     @Override
     public void setErrorMessage(@Nullable String message) {
     }
+    @Override
+    protected boolean isEmpty() {
+        return checkedSelectionOptions.isEmpty();
+    }
 }

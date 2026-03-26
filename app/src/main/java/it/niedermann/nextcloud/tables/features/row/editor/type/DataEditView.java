@@ -18,6 +18,13 @@ import java.util.Optional;
 import it.niedermann.nextcloud.tables.database.entity.Column;
 import it.niedermann.nextcloud.tables.database.model.FullData;
 import it.niedermann.nextcloud.tables.ui.LifecycleAwareFrameLayout;
+import it.niedermann.nextcloud.tables.R;
+
+import android.content.res.ColorStateList;
+import android.graphics.Typeface;
+import android.widget.TextView;
+import androidx.core.content.ContextCompat;
+import com.google.android.material.textfield.TextInputLayout;
 
 public abstract class DataEditView<ViewBindingType extends ViewBinding> extends LifecycleAwareFrameLayout {
 
@@ -76,6 +83,11 @@ public abstract class DataEditView<ViewBindingType extends ViewBinding> extends 
         layoutParams.setMargins(0, verticalMargin, 0, verticalMargin);
         setLayoutParams(layoutParams);
         addView(binding.getRoot());
+
+         // NEU: Visuelle Pflichtfeld-Kennzeichnung
+        if (column.isMandatory()) {
+            post(() -> markAsRequired());
+        }
         requestLayout();
         invalidate();
     }
@@ -140,6 +152,56 @@ public abstract class DataEditView<ViewBindingType extends ViewBinding> extends 
      */
     @NonNull
     public Optional<String> validate() {
+        // NEU: Pflichtfeld-Validierung hinzufügen
+        if (column != null && column.isMandatory() && isEmpty()) {
+            return Optional.of(getContext().getString(R.string.validation_mandatory));
+        }
         return Optional.empty();
     }
+    // Default isEmpty() - wird später von TextEditor überschrieben
+    protected boolean isEmpty() {
+        return false; // Default: nicht leer (konservativ)
+    }
+    private void markAsRequired() {
+        boolean marked = false;
+        
+        // Pattern A1: Standard TextInputLayout
+        TextInputLayout wrapper = findViewById(R.id.wrapper);
+        if (wrapper != null) {
+            marked = markTextInputLayout(wrapper);
+        }
+        
+        // Pattern A2: Autocomplete TextInputLayout  
+        if (!marked) {
+            TextInputLayout searchWrapper = findViewById(R.id.searchWrapper);
+            if (searchWrapper != null) {
+                marked = markTextInputLayout(searchWrapper);
+            }
+        }
+    
+    // Pattern B: TextView Title
+    if (!marked) {
+        TextView title = findViewById(R.id.title);
+        if (title != null) {
+            markTextView(title);
+        }
+    }
+}
+
+    private boolean markTextInputLayout(TextInputLayout layout) {
+        String currentHint = layout.getHint() != null ? layout.getHint().toString() : "";
+        layout.setHint(currentHint + " *");
+        layout.setHintTextColor(ColorStateList.valueOf(
+            ContextCompat.getColor(getContext(), android.R.color.holo_red_dark)
+        ));
+        layout.setBoxStrokeColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_dark));
+        return true;
+    }
+
+    private void markTextView(TextView textView) {
+        String currentText = textView.getText().toString();
+        textView.setText(currentText + " *");
+        textView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_dark));
+        textView.setTypeface(null, Typeface.BOLD);
+    }    
 }

@@ -22,6 +22,7 @@ import it.niedermann.nextcloud.tables.databinding.EditTextviewBinding;
 import it.niedermann.nextcloud.tables.features.row.editor.OnTextChangedListener;
 import it.niedermann.nextcloud.tables.features.row.editor.type.DataEditView;
 
+
 public class TextEditor extends DataEditView<EditTextviewBinding> implements OnTextChangedListener {
 
     public TextEditor(@NonNull Context context) {
@@ -44,6 +45,14 @@ public class TextEditor extends DataEditView<EditTextviewBinding> implements OnT
         super(context, EditTextviewBinding.inflate(LayoutInflater.from(context)), column, fragmentManager);
 
         binding.editText.addTextChangedListener(this);
+        binding.editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) { // Feld verlassen
+                validate().ifPresentOrElse(
+                    this::setErrorMessage,
+                    () -> setErrorMessage(null)
+                );
+            }
+        });               
         binding.getRoot().setHint(column.getTitle());
         binding.getRoot().setStartIconDrawable(R.drawable.baseline_short_text_24);
 
@@ -97,6 +106,14 @@ public class TextEditor extends DataEditView<EditTextviewBinding> implements OnT
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         onValueChanged();
     }
+    @Override
+    public void afterTextChanged(Editable s) {
+        // Live-Validierung beim Tippen
+        validate().ifPresentOrElse(
+            this::setErrorMessage,
+            () -> setErrorMessage(null)
+        );
+    }
 
     protected void applyChangesWithoutChangingPristineState(@NonNull Runnable r) {
         binding.editText.removeTextChangedListener(this);
@@ -114,5 +131,9 @@ public class TextEditor extends DataEditView<EditTextviewBinding> implements OnT
         }
 
         return super.validate();
+    }
+    @Override
+    protected boolean isEmpty() {
+        return TextUtils.isEmpty(binding.editText.getText());
     }
 }

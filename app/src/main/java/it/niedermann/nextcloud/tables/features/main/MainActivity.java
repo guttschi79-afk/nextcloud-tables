@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -90,13 +91,16 @@ public class MainActivity extends AppCompatActivity {
             v.setLayoutParams(mlp);
             return WindowInsetsCompat.CONSUMED;
         });
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.swipeRefreshLayout, (v, windowInsets) -> {
             final var insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            binding.swipeRefreshLayout.setPadding(insets.left, 0, insets.right, insets.bottom);
+            
+            // Orientierung checken
+            boolean isLandscape = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+            int extraBottomPadding = isLandscape ? 20 : -40; // Mehr Padding im Querformat
+            
+            binding.swipeRefreshLayout.setPadding(insets.left, 0, insets.right, insets.bottom + extraBottomPadding);
             return WindowInsetsCompat.CONSUMED;
         });
-
         final var toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         binding.drawerLayout.addDrawerListener(toggle);
         toggle.syncState();

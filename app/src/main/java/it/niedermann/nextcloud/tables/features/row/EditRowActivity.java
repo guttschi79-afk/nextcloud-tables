@@ -261,7 +261,26 @@ public class EditRowActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
     }
-
+    private boolean validateAllFields() {
+    for (DataEditView<?> editor : editors) {
+        Optional<String> error = editor.validate();
+        if (error.isPresent()) {
+            // Fehler anzeigen
+            editor.setErrorMessage(error.get());
+            
+            // Focus auf erstes ungültiges Feld
+            editor.requestFocus();
+            
+            // Scroll zu dem Feld
+            binding.scrollView.post(() -> {
+                binding.scrollView.smoothScrollTo(0, editor.getTop());
+            });
+            
+            return false; // Validierung fehlgeschlagen
+        }
+    }
+    return true; // Alle Felder valid
+}
     @Override
     public boolean onSupportNavigateUp() {
         if (savePromptRequired()) {
@@ -281,6 +300,11 @@ public class EditRowActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.save) {
+            // NEU: Validierung vor Speichern
+            if (!validateAllFields()) {
+                return true; // Speichern blockieren
+            }
+            
             save();
             finish();
             return true;

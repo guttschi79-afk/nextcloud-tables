@@ -111,4 +111,8 @@ public class SelectionEditor extends DataEditView<EditSelectionBinding> {
     @Override
     public void setErrorMessage(@Nullable String message) {
     }
+    @Override
+    protected boolean isEmpty() {
+        return checkedSelectionOption == null;
+    }
 }

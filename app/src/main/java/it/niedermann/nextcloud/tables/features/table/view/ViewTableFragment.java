@@ -74,9 +74,6 @@ public class ViewTableFragment extends Fragment {
     }
 
     private void applyUiState(@NonNull ViewTableViewModel.UiState state) {
-        binding.tableView.getScrollHandler().scrollToRowPosition(0);
-        binding.tableView.getScrollHandler().scrollToColumnPosition(0);
-
         final var fullTable = state.currentFullTable();
 
         if (fullTable == null) {
@@ -101,7 +98,7 @@ public class ViewTableFragment extends Fragment {
         binding.tableView.getCellLayoutManager().scrollToPosition(rowPosition);
         binding.tableView.getRowHeaderLayoutManager().scrollToPosition(rowPosition);
         binding.tableView.getColumnHeaderLayoutManager().scrollToPosition(columnPosition);
-
+        
         binding.tableView.setTableViewListener(new DefaultTableViewListener() {
             @Override
             public void onCellClicked(@NonNull RecyclerView.ViewHolder cellView, int columnPosition, int rowPosition) {
